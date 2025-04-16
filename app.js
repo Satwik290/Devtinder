@@ -1,4 +1,5 @@
 const express = require('express');
+
 require('dotenv').config();
 const connectDB = require('./config/database');
 const User = require('./models/user');
@@ -15,6 +16,23 @@ app.post('/signup', async (req, res) => {
     // res.status(201).json(saved);
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+});
+// get user by email
+app.get('/user', async (req, res) => {
+  const { email } = req.query;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    res.status(200).json({
+      firstname: user.firstname,
+      lastname: user.lastname,
+      email: user.email
+    });
+  } catch (err) {
+    res.status(500).send("Something went wrong");
   }
 });
 
