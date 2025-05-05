@@ -32,7 +32,7 @@ app.get('/user', async (req, res) => {
       lastname: user.lastname,
       email: user.email
     });
-  } catch (err) {
+  } catch (err) { 
     console.error(err); // Log the error for debugging
     res.status(500).send("Something went wrong");
   }
@@ -60,6 +60,63 @@ app.delete('/user', async (req, res) => {
       return res.status(404).send("User not found");
     }
     res.status(200).send("User deleted successfully!");
+  } catch (err) {
+    console.error(err); // Log the error for debugging
+    res.status(500).send("Something went wrong");
+  }
+});
+
+//update user by email
+app.put('/user', async (req, res) => {
+  const { email, firstname, lastname } = req.body; // Extract email from the request body
+  if (!email) {
+    return res.status(400).send("Email is required");
+  }
+  try {
+    const user = await User.findOneAndUpdate(
+      { email },
+      { firstname, lastname },
+      { new: true } // Return the updated document
+    );
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    res.status(200).json({
+      firstname: user.firstname,
+      lastname: user.lastname,
+      email: user.email
+    });
+  } catch (err) {
+    console.error(err); // Log the error for debugging
+    res.status(500).send("Something went wrong");
+  }
+});
+
+//update user by email (partial update)
+app.patch('/user', async (req, res) => {
+  const { email, firstname, lastname } = req.body; // Extract email and fields to update from the request body
+  if (!email) {
+    return res.status(400).send("Email is required");
+  }
+  try {
+    const updateFields = {};
+    if (firstname) updateFields.firstname = firstname;
+    if (lastname) updateFields.lastname = lastname;
+
+    const user = await User.findOneAndUpdate(
+      { email },
+      updateFields,
+      { new: true } // Return the updated document
+    );
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    res.status(200).json({
+      message: "User updated successfully!",
+      firstname: user.firstname,
+      lastname: user.lastname,
+      email: user.email
+    });
   } catch (err) {
     console.error(err); // Log the error for debugging
     res.status(500).send("Something went wrong");
