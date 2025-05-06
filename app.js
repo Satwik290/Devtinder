@@ -1,5 +1,4 @@
 const express = require('express');
-
 require('dotenv').config();
 const connectDB = require('./config/database');
 const User = require('./models/user');
@@ -7,6 +6,7 @@ const User = require('./models/user');
 const app = express();
 app.use(express.json());
 
+// input user data
 app.post('/signup', async (req, res) => { 
   try {
     const user = new User(req.body);
@@ -111,6 +111,7 @@ app.patch('/user', async (req, res) => {
     if (!user) {
       return res.status(404).send("User not found");
     }
+    console.log(user);
     res.status(200).json({
       message: "User updated successfully!",
       firstname: user.firstname,
