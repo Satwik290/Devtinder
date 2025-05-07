@@ -93,34 +93,42 @@ app.put('/user', async (req, res) => {
 });
 
 //update user by email (partial update)
-app.patch('/user', async (req, res) => {
-  const { email, firstname, lastname } = req.body; // Extract email and fields to update from the request body
-  if (!email) {
-    return res.status(400).send("Email is required");
-  }
-  try {
-    const updateFields = {};
-    if (firstname) updateFields.firstname = firstname;
-    if (lastname) updateFields.lastname = lastname;
+app.patch("/user/:userId", async (req, res) => {
+  const userId = req.params?.userId; // Extract userId from the request parameters
+  const data = req.body; // Extract fields to update from the request body
 
-    const user = await User.findOneAndUpdate(
-      { email },
-      updateFields,
-      { new: true } // Return the updated document
+  try {
+    // Define allowed fields for updates
+    const ALLOWED_UPDATES = ["photoUrl", "about", "gender", "age", "skills"];
+    const isUpdateAllowed = Object.keys(data).every((key) =>
+      ALLOWED_UPDATES.includes(key)
     );
+
+    // Check if all fields in the request body are allowed
+    if (!isUpdateAllowed) {
+      throw new Error("Update not allowed");
+    }
+
+    // Validate the number of skills
+    if (data?.skills && data.skills.length > 10) {
+      throw new Error("Skills cannot be more than 10");
+    }
+
+    // Update the user in the database
+    const user = await User.findByIdAndUpdate({ _id: userId }, data, {
+      returnDocument: "after", // Return the updated document
+      runValidators: true, // Run schema validators
+    });
+
     if (!user) {
       return res.status(404).send("User not found");
     }
-    console.log(user);
-    res.status(200).json({
-      message: "User updated successfully!",
-      firstname: user.firstname,
-      lastname: user.lastname,
-      email: user.email
-    });
+
+    console.log(user); // Log the updated user for debugging
+    res.status(200).send("User updated successfully");
   } catch (err) {
     console.error(err); // Log the error for debugging
-    res.status(500).send("Something went wrong");
+    res.status(400).send("UPDATE FAILED: " + err.message);
   }
 });
 
