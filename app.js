@@ -2,23 +2,65 @@ const express = require('express');
 require('dotenv').config();
 const connectDB = require('./config/database');
 const User = require('./models/user');
+const { validateSignUpData } = require('./utils/validation'); // Import the validation function
+const bcrypt = require("bcrypt");
 
 const app = express();
 app.use(express.json());
 
 // input user data
-app.post('/signup', async (req, res) => { 
+app.post('/signup', async (req, res) => {
   try {
-    const user = new User(req.body);
-    const saved = await user.save();
+    // Validate the input data
+    validateSignUpData(req);
+
+    const { firstName, lastName, email, password } = req.body;
+
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      firstname: firstName,   // <-- fixed
+      lastname: lastName,     // <-- fixed
+      email: email,         // <-- fixed
+      password: passwordHash,
+    });
+
+    await user.save();
     res.status(201).send('User created successfully!');
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
+
+
+// Login user
+app.post("/login", async (req, res) => {
+  try {
+    // Extract emailId and password from the request body
+    const { email, password } = req.body;
+
+    // Find the user by emailId
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      throw new Error("Invalid credentials");
+    }
+
+    // Compare the provided password with the hashed password in the database
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (isPasswordValid) {
+      res.send("Login Successful!!!");
+    } else {
+      throw new Error("Invalid credentials");
+    }
+  } catch (err) {
+    res.status(400).send("ERROR: " + err.message);
+  }
+});
+
 //get user by email
 app.get('/user', async (req, res) => {
-  const { email } = req.body; // Extract email from the request body
+  const { email } = req.query; // Extract email from query parameters
   if (!email) {
     return res.status(400).send("Email is required");
   }
@@ -32,7 +74,7 @@ app.get('/user', async (req, res) => {
       lastname: user.lastname,
       email: user.email
     });
-  } catch (err) { 
+  } catch (err) {
     console.error(err); // Log the error for debugging
     res.status(500).send("Something went wrong");
   }
@@ -82,6 +124,7 @@ app.put('/user', async (req, res) => {
       return res.status(404).send("User not found");
     }
     res.status(200).json({
+      message: "User updated successfully!",
       firstname: user.firstname,
       lastname: user.lastname,
       email: user.email
@@ -115,7 +158,7 @@ app.patch("/user/:userId", async (req, res) => {
     }
 
     // Update the user in the database
-    const user = await User.findByIdAndUpdate({ _id: userId }, data, {
+    const user = await User.findByIdAndUpdate(userId, data, {
       returnDocument: "after", // Return the updated document
       runValidators: true, // Run schema validators
     });
@@ -141,6 +184,6 @@ connectDB()
     });
   })
   .catch((err) => {
-    console.error("Failed to connect to the database", err);
+    console.error("Failed to connect to the database. Ensure the database is running and the connection string is correct.", err);
     process.exit(1); // Exit the process with failure
   });
