@@ -45,24 +45,21 @@ app.post("/login", async (req, res) => {
       throw new Error("Invalid credentials");
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (isPasswordValid) {
-      throw new Error("Invalid credentials");
-    }
-
-    // Compare the provided password with the hashed password in the database
+    // Use the model's validatePassword method
     const isPasswordValid = await user.validatePassword(password);
-    if (isPasswordValid) {
-      // Create a JWT token
-      const token = await user.getJWT();
-
-      // Add the token to cookies and send the response
-      res.cookie("token", token, { expires: new Date(Date.now() + 8 * 3600000),
-      httpOnly: true });
-      res.send("Login Successful!!!");
-    } else {
+    if (!isPasswordValid) {
       throw new Error("Invalid credentials");
     }
+
+    // Create a JWT token
+    const token = await user.getJWT();
+
+    // Add the token to cookies and send the response
+    res.cookie("token", token, { 
+      expires: new Date(Date.now() + 8 * 3600000),
+      httpOnly: true 
+    });
+    res.send("Login Successful!!!");
   } catch (err) {
     res.status(400).send("ERROR: " + err.message);
   }
@@ -83,7 +80,7 @@ app.get("/profile", userAuth ,async (req, res) => {
 app.post("/sendConnectionRequest", userAuth, async (req, res) => {
   const user = req.user;
   console.log("Sending a connection request");
-  res.send(user.firstName + "sent the connect request!");
+  res.send(`${user.firstname} sent the connect request!`);
 });
 //get user by email
 // app.get('/user', async (req, res) => {
