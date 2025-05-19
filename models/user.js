@@ -6,9 +6,17 @@ const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema(
   {
-    firstname: { type: String, required: true, minLength: 4, maxLength: 20 },
-    lastname: { type: String, required: true },
-    email: {
+    firstName: {
+      type: String,
+      required: true,
+      minLength: 4,
+      maxLength: 50,
+    },
+    lastName: {
+      type: String,
+      required: true,
+    },
+    emailId: {
       type: String,
       lowercase: true,
       required: true,
@@ -29,13 +37,15 @@ const userSchema = new mongoose.Schema(
         }
       },
     },
-    age: { type: Number },
+    age: {
+      type: Number,
+      min: 18,
+    },
     gender: {
       type: String,
-      validate(value) {
-        if (!["male", "female"].includes(value)) {
-          throw new Error("Gender is not valid");
-        }
+      enum: {
+        values: ["male", "female", "other"],
+        message: `{VALUE} is not a valid gender type`,
       },
     },
     photoUrl: {
@@ -48,7 +58,7 @@ const userSchema = new mongoose.Schema(
       },
     },
     about: { type: String, default: "about not provided" },
-    skill: { type: [String] },
+    skills: { type: [String] },
   },
   {
     timestamps: true,
