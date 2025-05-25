@@ -14,6 +14,7 @@ const requestRouter= require("./routes/request");
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
+app.use("/", userRouter);
 
 //get user by email
 // app.get('/user', async (req, res) => {
