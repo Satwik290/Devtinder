@@ -2,7 +2,6 @@
 
 This repository is dedicated to learning and practicing the concepts of **Node.js**. It contains sample projects, scripts, and exercises to explore various features of Node.js.
 
----
 
 ## Table of Contents
 - [About](#about)
