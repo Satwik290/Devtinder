@@ -1,9 +1,8 @@
-# DevTinder
+# Node.js Practice Repository
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://example.com/your-ci-cd-status) [![Contributors](https://img.shields.io/github/contributors/yourusername/devtinder)](https://github.com/yourusername/devtinder/graphs/contributors)
-[![Stars](https://img.shields.io/github/stars/yourusername/devtinder)](https://github.com/yourusername/devtinder/stargazers)
-[![Forks](https://img.shields.io/github/forks/yourusername/devtinder)](https://github.com/yourusername/devtinder/network/members)
+This repository is dedicated to learning and practicing the concepts of **Node.js**. It contains sample projects, scripts, and exercises to explore various features of Node.js.
+
+---
 
 ## Table of Contents
 
